@@ -1,19 +1,21 @@
 package com.bkoc.talite;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.List;
 
-import com.bkoc.BinanceAPI.*;
+import com.bkoc.exchangeapi.*;
+import com.bkoc.exchangeapi.exchanges.Binance;
+import com.bkoc.exchangeapi.exchanges.FTX;
 
 public class Test {
-    static BinanceApi bApi = new BinanceApi();
-
     public static void main(String[] args) throws Exception {
-        List<Candlestick> candle = bApi.klines("BTCUSDT", BinanceInterval.INT_5MIN, 300);
-        List<BigDecimal> close = bApi.GetValuesOfCandlestics(candle, BinanceApi.CS_TYPES.CLOSE);
-        List<BigDecimal> high = bApi.GetValuesOfCandlestics(candle, BinanceApi.CS_TYPES.HIGH);
-        List<BigDecimal> low = bApi.GetValuesOfCandlestics(candle, BinanceApi.CS_TYPES.LOW);
+        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_1MONTH, 300);
+        List<BigDecimal> close = General.getValuesOfCandlestics(candle, General.OHLCV.CLOSE);
+        List<BigDecimal> high = General.getValuesOfCandlestics(candle, General.OHLCV.HIGH);
+        List<BigDecimal> low = General.getValuesOfCandlestics(candle, General.OHLCV.LOW);
 
 //        System.out.println("SMA:");
 //        List<BigDecimal> sma = Talite.SMAIndicator(close, 14);
@@ -111,5 +113,12 @@ public class Test {
 //        List<BigDecimal> supertrend = Talite.SUPERTREND(high, low, close, 10, 3);
 //        for (BigDecimal x : supertrend)
 //            System.out.println(x);
+
+//        System.out.println("VAR");
+//        HashMap<String, List<BigDecimal>> hash = Talite.OTT(close, 2, 1.4f);
+//        List<BigDecimal> VAR = hash.get("VAR");
+//        List<BigDecimal> OTT = hash.get("OTT");
+//        for (int i = 0; i < VAR.size(); i++)
+//            System.out.println("VAR: " + VAR.get(i) + " -> OTT: " + OTT.get(i));
     }
 }

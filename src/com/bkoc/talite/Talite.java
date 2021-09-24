@@ -1,7 +1,5 @@
 package com.bkoc.talite;
 
-import com.sun.xml.internal.ws.resources.UtilMessages;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -11,18 +9,18 @@ import java.util.Objects;
 
 public class Talite {
 
-    public static enum MA_TYPE{
+    public static enum MA_TYPE {
         SMA,
         EMA,
         RMA
-    };
+    }
 
     /**
      * SMA Indicator
-     * */
-    public static List<BigDecimal> SMA(List<BigDecimal> closes, int timeperiod){
+     */
+    public static List<BigDecimal> SMA(List<BigDecimal> closes, int timeperiod) {
         //int index = 0;
-        if(closes.size() > timeperiod) {
+        if (closes.size() > timeperiod) {
             List<BigDecimal> sma = new LinkedList<>();
             for (int i = 0; i < closes.size(); i++) {
                 if (i >= timeperiod - 1) {
@@ -35,66 +33,63 @@ public class Talite {
                 }
             }
             return sma;
-        }
-        else return null;
+        } else return null;
     }
 
     /**
      * EMA Indicator
-     * */
-    public static List<BigDecimal> EMA(List<BigDecimal> closes, int timeperiod){
-        if(closes.size() > timeperiod) {
+     */
+    public static List<BigDecimal> EMA(List<BigDecimal> closes, int timeperiod) {
+        if (closes.size() > timeperiod) {
             BigDecimal alpha = BigDecimal.valueOf(2).divide(BigDecimal.valueOf(timeperiod + 1), 10, RoundingMode.HALF_UP).stripTrailingZeros();
             List<BigDecimal> ema = new LinkedList<>();
             emaCalculate(closes, ema, closes.size() - 1, alpha);
             return ema;
-        }
-        else return null;
+        } else return null;
     }
 
-    private static BigDecimal emaCalculate(List<BigDecimal> closes, List<BigDecimal> ema, int index, BigDecimal alpha){
-        if(index == 0) {
+    private static BigDecimal emaCalculate(List<BigDecimal> closes, List<BigDecimal> ema, int index, BigDecimal alpha) {
+        if (index == 0) {
             ema.add(closes.get(index).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros());
             return closes.get(index).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros();
         }
-        BigDecimal emaValue = closes.get(index).multiply(alpha).add(emaCalculate(closes, ema, index-1, alpha).multiply(BigDecimal.valueOf(1).subtract(alpha)));
+        BigDecimal emaValue = closes.get(index).multiply(alpha).add(emaCalculate(closes, ema, index - 1, alpha).multiply(BigDecimal.valueOf(1).subtract(alpha)));
         ema.add(emaValue.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros());
         return emaValue;
     }
 
     /**
      * RMA Indicator
-     * */
-    public static List<BigDecimal> RMA(List<BigDecimal> closes, int timeperiod){
+     */
+    public static List<BigDecimal> RMA(List<BigDecimal> closes, int timeperiod) {
         if (closes.size() > timeperiod) {
             BigDecimal alpha = BigDecimal.valueOf(1).divide(BigDecimal.valueOf(timeperiod), 10, RoundingMode.HALF_UP).stripTrailingZeros();
             List<BigDecimal> rma = new LinkedList<>();
             rmaCalculate(closes, rma, closes.size() - 1, alpha);
             return rma;
-        }
-        else return null;
+        } else return null;
     }
 
-    private static BigDecimal rmaCalculate(List<BigDecimal> closes, List<BigDecimal> rma, int index, BigDecimal alpha){
-        if(index == 0) {
+    private static BigDecimal rmaCalculate(List<BigDecimal> closes, List<BigDecimal> rma, int index, BigDecimal alpha) {
+        if (index == 0) {
             rma.add(closes.get(index).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros());
             return closes.get(index).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros();
         }
-        BigDecimal rmaValue = closes.get(index).multiply(alpha).add(rmaCalculate(closes, rma, index-1, alpha).multiply(BigDecimal.valueOf(1).subtract(alpha)));
+        BigDecimal rmaValue = closes.get(index).multiply(alpha).add(rmaCalculate(closes, rma, index - 1, alpha).multiply(BigDecimal.valueOf(1).subtract(alpha)));
         rma.add(rmaValue.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros());
         return rmaValue;
     }
 
     /**
      * WMA Indicator
-     * */
-    public static List<BigDecimal> WMA(List<BigDecimal> close, int timeperiod){
+     */
+    public static List<BigDecimal> WMA(List<BigDecimal> close, int timeperiod) {
         List<BigDecimal> wma = new LinkedList<>();
 
         for (int i = 0; i < timeperiod; i++)
             wma.add(BigDecimal.valueOf(0));
 
-        for (int i = timeperiod; i < close.size() + 1; i++){
+        for (int i = timeperiod; i < close.size() + 1; i++) {
             int mult = timeperiod;
             BigDecimal sum = BigDecimal.valueOf(0);
             for (int j = i - 1; j > i - timeperiod - 1; j--)
@@ -109,8 +104,8 @@ public class Talite {
 
     /**
      * RSI Indicator
-     * */
-    public static List<BigDecimal> RSI(List<BigDecimal> closes, int timeperiod){
+     */
+    public static List<BigDecimal> RSI(List<BigDecimal> closes, int timeperiod) {
         if (closes.size() > timeperiod) {
             List<BigDecimal> rsi = new LinkedList<>();
             BigDecimal poz = BigDecimal.valueOf(0);
@@ -151,14 +146,13 @@ public class Talite {
                     rsi.add(BigDecimal.valueOf(100).subtract(BigDecimal.valueOf(100).divide(BigDecimal.valueOf(1).add(poz.divide(neg, 10, RoundingMode.HALF_UP)), 10, RoundingMode.HALF_UP)).stripTrailingZeros());
             }
             return rsi;
-        }
-        else return null;
+        } else return null;
     }
 
     /**
      * STOCH Indicator
-     * */
-    public static HashMap<String, List<BigDecimal>> STOCH(List<BigDecimal> close, List<BigDecimal> high, List<BigDecimal> low, int periodK, int smoothK, int smoothD){
+     */
+    public static HashMap<String, List<BigDecimal>> STOCH(List<BigDecimal> close, List<BigDecimal> high, List<BigDecimal> low, int periodK, int smoothK, int smoothD) {
         if (close.size() > periodK) {
             HashMap<String, List<BigDecimal>> result = new HashMap<>();
             List<BigDecimal> stoch = new LinkedList<>();
@@ -190,13 +184,13 @@ public class Talite {
             result.put("d", stochSMA_D);
 
             return result;
-        }else return null;
+        } else return null;
     }
 
     /**
      * STOCHRSI Indicator
-     * */
-    public static HashMap<String, List<BigDecimal>> STOCHRSI(List<BigDecimal> close, int smoothK, int smoothD, int lengthRSI, int lengthStoch){
+     */
+    public static HashMap<String, List<BigDecimal>> STOCHRSI(List<BigDecimal> close, int smoothK, int smoothD, int lengthRSI, int lengthStoch) {
         List<BigDecimal> rsi = RSI(close, lengthRSI);
         if (!Objects.isNull(rsi))
             return STOCH(rsi, rsi, rsi, lengthStoch, smoothK, smoothD);
@@ -205,8 +199,8 @@ public class Talite {
 
     /**
      * BOLLINGER BAND Indicator
-     * */
-    public static HashMap<String, List<BigDecimal>> BBANDS(List<BigDecimal> close, int length, double mult){
+     */
+    public static HashMap<String, List<BigDecimal>> BBANDS(List<BigDecimal> close, int length, double mult) {
         if (close.size() > length) {
             HashMap<String, List<BigDecimal>> result = new HashMap<>();
             List<BigDecimal> middle = SMA(close, length);
@@ -234,13 +228,13 @@ public class Talite {
             result.put("lower", lower);
             result.put("middle", middle);
             return result;
-        }else return null;
+        } else return null;
     }
 
     /**
      * MACD Indicator (SMA ve EMA kullanılıyor)
-     * */
-    public static HashMap<String, List<BigDecimal>> MACD(List<BigDecimal> close, int fastLength, int slowLength, int signalSmoothingLength, MA_TYPE oscillatorMAType, MA_TYPE signalLineMAType){
+     */
+    public static HashMap<String, List<BigDecimal>> MACD(List<BigDecimal> close, int fastLength, int slowLength, int signalSmoothingLength, MA_TYPE oscillatorMAType, MA_TYPE signalLineMAType) {
         if (close.size() < fastLength || close.size() < slowLength || close.size() < signalSmoothingLength)
             return null;
 
@@ -267,8 +261,8 @@ public class Talite {
     /**
      * MavilimW Indicator (WMA kullanılıyor)
      * Kıvanç Özbilgiç
-     * */
-    public static List<BigDecimal> MavilimW(List<BigDecimal> close, int firstMALength, int secondMALength){
+     */
+    public static List<BigDecimal> MavilimW(List<BigDecimal> close, int firstMALength, int secondMALength) {
         int tmal = firstMALength + secondMALength;
         int Fmal = secondMALength + tmal;
         int Ftmal = Fmal + tmal;
@@ -286,8 +280,8 @@ public class Talite {
 
     /**
      * Commodity Channel Index (CCI)
-     * */
-    public static List<BigDecimal> CCI(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int length){
+     */
+    public static List<BigDecimal> CCI(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int length) {
         List<BigDecimal> ma;
         List<BigDecimal> cci = new LinkedList<>();
         List<BigDecimal> src = new LinkedList<>();
@@ -299,7 +293,7 @@ public class Talite {
         for (int i = 0; i < length - 1; i++)
             cci.add(BigDecimal.valueOf(0));
 
-        for (int i = length - 1; i < high.size(); i++){
+        for (int i = length - 1; i < high.size(); i++) {
             BigDecimal sum = BigDecimal.ZERO;
             for (int j = i; j > i - length; j--) // indexlerde doğru
                 sum = sum.add(BigDecimal.valueOf(Math.abs(src.get(j).subtract(ma.get(i)).floatValue())));
@@ -315,8 +309,8 @@ public class Talite {
 
     /**
      * Ichimoku Cloud Indicator
-     * */
-    public static HashMap<String, List<BigDecimal>> ICHIMOKU(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int conversionLineLength, int baseLineLength, int laggingSpan2Periods, int displacement){
+     */
+    public static HashMap<String, List<BigDecimal>> ICHIMOKU(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int conversionLineLength, int baseLineLength, int laggingSpan2Periods, int displacement) {
         BigDecimal max, min;
         HashMap<String, List<BigDecimal>> hash = new HashMap<>();
         List<BigDecimal> laggingSpan = new LinkedList<>(close);
@@ -325,7 +319,7 @@ public class Talite {
         List<BigDecimal> leadLine1 = new LinkedList<>(); // Öncü A (Senkou Span A) ((Tenkan Sen + Kijun Sen) / 2)
         List<BigDecimal> leadLine2 = new LinkedList<>(); // Öncü B (Senkou Span B)
 
-        for (int i = 0; i < displacement - 1; i++){
+        for (int i = 0; i < displacement - 1; i++) {
             conversionLine.add(BigDecimal.ZERO);
             baseLine.add(BigDecimal.ZERO);
             laggingSpan.add(BigDecimal.ZERO);
@@ -343,36 +337,36 @@ public class Talite {
         for (int i = 0; i < laggingSpan2Periods - 1; i++)
             leadLine2.add(BigDecimal.ZERO);
 
-        for (int i = 0; i < high.size(); i++){
+        for (int i = 0; i < high.size(); i++) {
             int k = 0;
-            if (i >= conversionLineLength - 1){
+            if (i >= conversionLineLength - 1) {
                 k++;
                 max = BigDecimal.ZERO;
                 min = BigDecimal.valueOf(Integer.MAX_VALUE);
-                for (int j = i; j > i - conversionLineLength; j--){
+                for (int j = i; j > i - conversionLineLength; j--) {
                     max = (high.get(j).compareTo(max) > 0) ? high.get(j) : max;
                     min = (low.get(j).compareTo(min) < 0) ? low.get(j) : min;
                 }
                 conversionLine.add(max.add(min).divide(BigDecimal.valueOf(2), 8, RoundingMode.HALF_UP));
             } else conversionLine.add(BigDecimal.ZERO);
 
-            if (i >= baseLineLength - 1){
+            if (i >= baseLineLength - 1) {
                 k++;
                 max = BigDecimal.ZERO;
                 min = BigDecimal.valueOf(Integer.MAX_VALUE);
 
-                for (int j = i; j > i - baseLineLength; j--){
+                for (int j = i; j > i - baseLineLength; j--) {
                     max = (high.get(j).compareTo(max) > 0) ? high.get(j) : max;
                     min = (low.get(j).compareTo(min) < 0) ? low.get(j) : min;
                 }
                 baseLine.add(max.add(min).divide(BigDecimal.valueOf(2), 8, RoundingMode.HALF_UP));
             } else baseLine.add(BigDecimal.ZERO);
 
-            if (i >= laggingSpan2Periods - 1){
+            if (i >= laggingSpan2Periods - 1) {
                 max = BigDecimal.ZERO;
                 min = BigDecimal.valueOf(Integer.MAX_VALUE);
 
-                for (int j = i; j > i - laggingSpan2Periods; j--){
+                for (int j = i; j > i - laggingSpan2Periods; j--) {
                     max = (high.get(j).compareTo(max) > 0) ? high.get(j) : max;
                     min = (low.get(j).compareTo(min) < 0) ? low.get(j) : min;
                 }
@@ -383,7 +377,7 @@ public class Talite {
                 leadLine1.add(conversionLine.get(displacement - 1 + i).add(baseLine.get(displacement - 1 + i)).divide(BigDecimal.valueOf(2), 8, RoundingMode.HALF_UP));
         }
 
-        for (int i = 0; i < displacement - 1; i++){
+        for (int i = 0; i < displacement - 1; i++) {
             conversionLine.add(BigDecimal.ZERO);
             baseLine.add(BigDecimal.ZERO);
         }
@@ -399,16 +393,16 @@ public class Talite {
 
     /**
      * ATR - Average True Range
-     * */
-    public static List<BigDecimal> ATR(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int period, MA_TYPE ma_type){
+     */
+    public static List<BigDecimal> ATR(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int period, MA_TYPE ma_type) {
         List<BigDecimal> tr = new LinkedList<>();
         tr.add(BigDecimal.ZERO);
 
         // TR Calculate
-        for (int i = 1; i < high.size(); i++){
+        for (int i = 1; i < high.size(); i++) {
             BigDecimal a = high.get(i).subtract(low.get(i));
-            BigDecimal b = BigDecimal.valueOf(Math.abs(high.get(i).subtract(close.get(i-1)).floatValue()));
-            BigDecimal c = BigDecimal.valueOf(Math.abs(low.get(i).subtract(close.get(i-1)).floatValue()));
+            BigDecimal b = BigDecimal.valueOf(Math.abs(high.get(i).subtract(close.get(i - 1)).floatValue()));
+            BigDecimal c = BigDecimal.valueOf(Math.abs(low.get(i).subtract(close.get(i - 1)).floatValue()));
             BigDecimal temp = (a.compareTo(b) > 0) ? ((a.compareTo(c) > 0) ? a : c) : ((b.compareTo(c) > 0) ? b : c);
             tr.add(temp);
         }
@@ -422,8 +416,8 @@ public class Talite {
 
     /**
      * ATR - Average True Range
-     * */
-    public static List<BigDecimal> SUPERTREND(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int atr_period, float atr_multiplier){
+     */
+    public static List<BigDecimal> SUPERTREND(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int atr_period, float atr_multiplier) {
         List<BigDecimal> atr = ATR(high, low, close, atr_period, MA_TYPE.RMA);
         List<BigDecimal> hl2 = new LinkedList<>();
 
@@ -439,7 +433,7 @@ public class Talite {
         BigDecimal final_lowerband = BigDecimal.ZERO;
         List<BigDecimal> supertrend = new LinkedList<>();
 
-        for (int i = 0; i < close.size(); i++){
+        for (int i = 0; i < close.size(); i++) {
             BigDecimal highc = high.get(i);
             BigDecimal lowc = low.get(i);
             BigDecimal atrc = atr.get(i);
@@ -458,14 +452,12 @@ public class Talite {
 
             if (previous_supertrend.compareTo(previous_final_upperband) == 0 && closec.compareTo(final_upperband) <= 0)
                 supertrendc = final_upperband;
-            else
-                if (previous_supertrend.compareTo(previous_final_upperband) == 0 && closec.compareTo(final_upperband) >= 0)
-                    supertrendc = final_lowerband;
-                else
-                    if (previous_supertrend.compareTo(previous_final_lowerband) == 0 && closec.compareTo(final_lowerband) >= 0)
-                        supertrendc = final_lowerband;
-                    else if (previous_supertrend.compareTo(previous_final_lowerband) == 0 && closec.compareTo(final_lowerband) <= 0)
-                        supertrendc = final_upperband;
+            else if (previous_supertrend.compareTo(previous_final_upperband) == 0 && closec.compareTo(final_upperband) >= 0)
+                supertrendc = final_lowerband;
+            else if (previous_supertrend.compareTo(previous_final_lowerband) == 0 && closec.compareTo(final_lowerband) >= 0)
+                supertrendc = final_lowerband;
+            else if (previous_supertrend.compareTo(previous_final_lowerband) == 0 && closec.compareTo(final_lowerband) <= 0)
+                supertrendc = final_upperband;
 
             supertrend.add(supertrendc);
             previous_close = closec;
@@ -475,5 +467,94 @@ public class Talite {
         }
 
         return supertrend;
+    }
+
+    /**
+     * OTT - Optimized Trend Tracker
+     */
+    private static float nz(float value) {
+        return (!Float.isNaN(value)) ? value : 0f;
+    }
+
+    private static float nz(float x, float y) {
+        return (!Float.isNaN(x)) ? x : y;
+    }
+
+    public static List<BigDecimal> VAR(List<BigDecimal> close, int length) {
+        float valpha = 2f / (length + 1f);
+
+        List<Float> vud1 = new LinkedList<>();
+        List<Float> vdd1 = new LinkedList<>();
+        List<Float> vUD = new LinkedList<>();
+        List<Float> vDD = new LinkedList<>();
+        List<BigDecimal> var = new LinkedList<>();
+        vud1.add(0f);
+        vdd1.add(0f);
+        vUD.add(0f);
+        vDD.add(0f);
+        var.add(BigDecimal.ZERO);
+
+        for (int i = 1; i < close.size(); i++) {
+            vud1.add((close.get(i).compareTo(close.get(i - 1)) > 0 ? close.get(i).subtract(close.get(i - 1)).floatValue() : 0f));
+            vdd1.add(close.get(i).compareTo(close.get(i - 1)) < 0 ? close.get(i - 1).subtract(close.get(i)).floatValue() : 0f);
+
+            int lastValIndex = vud1.size() - 1;
+            if (i > 7) {
+                float sumvUD = 0f, sumvDD = 0f;
+                for (int j = lastValIndex; j > lastValIndex - 9; j--) {
+                    sumvUD += vud1.get(j);
+                    sumvDD += vdd1.get(j);
+                }
+                vUD.add(sumvUD);
+                vDD.add(sumvDD);
+            } else {
+                vUD.add(0f);
+                vDD.add(0f);
+            }
+            lastValIndex = vud1.size() - 1;
+            float vCMO = nz((vUD.get(lastValIndex) - vDD.get(lastValIndex)) / (vUD.get(lastValIndex) + vDD.get(lastValIndex)));
+            var.add(BigDecimal.valueOf(nz(valpha * Math.abs(vCMO) * close.get(i).floatValue()) + (1 - valpha * Math.abs(vCMO)) * nz(var.get(var.size() - 1).floatValue())));
+        }
+
+        return var;
+    }
+
+    public static HashMap<String, List<BigDecimal>> OTT(List<BigDecimal> close, int length, float percent) {
+        List<BigDecimal> MAvg = VAR(close, length);
+        List<Float> longStop = new LinkedList<>();
+        List<Float> shortStop = new LinkedList<>();
+        List<Float> dir = new LinkedList<>();
+        List<BigDecimal> ott = new LinkedList<>();
+        longStop.add(0f);
+        shortStop.add(0f);
+        dir.add(1f);
+
+        for (int i = 0; i < close.size(); i++){
+            float fark = MAvg.get(i).floatValue() * percent * 0.01f;
+
+            longStop.add(MAvg.get(i).floatValue() - fark);
+            float longStopPrev = nz(longStop.get(longStop.size()-2), longStop.get(longStop.size()-1));
+            longStop.set(longStop.size()-1, MAvg.get(i).floatValue() > longStopPrev ? Math.max(longStop.get(longStop.size()-1), longStopPrev) : longStop.get(longStop.size()-1));
+
+            shortStop.add(MAvg.get(i).floatValue() + fark);
+            float shortStopPrev = nz(shortStop.get(shortStop.size()-2), shortStop.get(shortStop.size()-1));
+            shortStop.set(shortStop.size()-1, MAvg.get(i).floatValue() < shortStopPrev ? Math.min(shortStop.get(shortStop.size()-1), shortStopPrev) : shortStop.get(shortStop.size()-1));
+
+            dir.add(1f);
+            dir.set(dir.size()-1 ,nz(dir.get(dir.size()-2), dir.get(dir.size()-1)));
+            dir.set(dir.size()-1, (dir.get(dir.size()-1) == -1f && MAvg.get(i).floatValue() > shortStopPrev) ? 1f : (dir.get(dir.size()-1) == 1f && MAvg.get(i).floatValue() < longStopPrev) ? -1f : dir.get(dir.size()-1));
+            float MT = dir.get(dir.size()-1) == 1f ? longStop.get(longStop.size()-1) : shortStop.get(shortStop.size()-1);
+            ott.add((MAvg.get(i).floatValue() > MT) ? BigDecimal.valueOf(MT * (200f + percent) / 200f) : BigDecimal.valueOf(MT * (200f - percent) / 200f));
+        }
+        ott.add(0, BigDecimal.ZERO);
+        ott.add(0, BigDecimal.ZERO);
+        ott.remove(ott.size()-1);
+        ott.remove(ott.size()-1);
+
+        HashMap<String, List<BigDecimal>> hashMap = new HashMap<>();
+        hashMap.put("VAR", MAvg);
+        hashMap.put("OTT", ott);
+
+        return hashMap;
     }
 }

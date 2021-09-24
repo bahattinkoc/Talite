@@ -11,5 +11,6 @@
     <orderEntry type="library" name="BinanceApi (2)" level="project" />
     <orderEntry type="library" name="BinanceApi (3)" level="project" />
     <orderEntry type="library" name="BinanceApi (4)" level="project" />
+    <orderEntry type="library" name="exchange_api" level="project" />
   </component>
 </module>
