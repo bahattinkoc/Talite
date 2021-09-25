@@ -8,11 +8,12 @@ import java.util.List;
 
 import com.bkoc.exchangeapi.*;
 import com.bkoc.exchangeapi.exchanges.Binance;
+import com.bkoc.exchangeapi.exchanges.Bitfinex;
 import com.bkoc.exchangeapi.exchanges.FTX;
 
 public class Test {
     public static void main(String[] args) throws Exception {
-        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_1MONTH, 300);
+        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_1WEEK, 300);
         List<BigDecimal> close = General.getValuesOfCandlestics(candle, General.OHLCV.CLOSE);
         List<BigDecimal> high = General.getValuesOfCandlestics(candle, General.OHLCV.HIGH);
         List<BigDecimal> low = General.getValuesOfCandlestics(candle, General.OHLCV.LOW);
@@ -116,9 +117,17 @@ public class Test {
 
 //        System.out.println("VAR");
 //        HashMap<String, List<BigDecimal>> hash = Talite.OTT(close, 2, 1.4f);
-//        List<BigDecimal> VAR = hash.get("VAR");
+//        List<BigDecimal> VAR = hash.get("MA");
 //        List<BigDecimal> OTT = hash.get("OTT");
 //        for (int i = 0; i < VAR.size(); i++)
 //            System.out.println("VAR: " + VAR.get(i) + " -> OTT: " + OTT.get(i));
+
+        System.out.println("PMax");
+        HashMap<String, List<BigDecimal>> hash = Talite.PMAX(high, low, close, 10, 3, 10, Talite.MA_TYPE.VAR);
+        List<BigDecimal> VAR = hash.get("MA");
+        List<BigDecimal> PMAX = hash.get("PMAX");
+        System.out.println("VAR: " + VAR.size() + "\nPMAX: " + PMAX.size());
+        for (int i = 0; i < VAR.size(); i++)
+            System.out.println("VAR: " + VAR.get(i) + " -> PMAX: " + PMAX.get(i));
     }
 }

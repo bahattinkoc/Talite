@@ -12,7 +12,9 @@ public class Talite {
     public static enum MA_TYPE {
         SMA,
         EMA,
-        RMA
+        RMA,
+        WMA,
+        VAR
     }
 
     /**
@@ -100,6 +102,48 @@ public class Talite {
             wma.add(sum);
         }
         return wma;
+    }
+
+    /**
+     * VAR Indicator
+     */
+    public static List<BigDecimal> VAR(List<BigDecimal> close, int length) {
+        float valpha = 2f / (length + 1f);
+
+        List<Float> vud1 = new LinkedList<>();
+        List<Float> vdd1 = new LinkedList<>();
+        List<Float> vUD = new LinkedList<>();
+        List<Float> vDD = new LinkedList<>();
+        List<BigDecimal> var = new LinkedList<>();
+        vud1.add(0f);
+        vdd1.add(0f);
+        vUD.add(0f);
+        vDD.add(0f);
+        var.add(BigDecimal.ZERO);
+
+        for (int i = 1; i < close.size(); i++) {
+            vud1.add((close.get(i).compareTo(close.get(i - 1)) > 0 ? close.get(i).subtract(close.get(i - 1)).floatValue() : 0f));
+            vdd1.add(close.get(i).compareTo(close.get(i - 1)) < 0 ? close.get(i - 1).subtract(close.get(i)).floatValue() : 0f);
+
+            int lastValIndex = vud1.size() - 1;
+            if (i > 7) {
+                float sumvUD = 0f, sumvDD = 0f;
+                for (int j = lastValIndex; j > lastValIndex - 9; j--) {
+                    sumvUD += vud1.get(j);
+                    sumvDD += vdd1.get(j);
+                }
+                vUD.add(sumvUD);
+                vDD.add(sumvDD);
+            } else {
+                vUD.add(0f);
+                vDD.add(0f);
+            }
+            lastValIndex = vud1.size() - 1;
+            float vCMO = nz((vUD.get(lastValIndex) - vDD.get(lastValIndex)) / (vUD.get(lastValIndex) + vDD.get(lastValIndex)));
+            var.add(BigDecimal.valueOf(nz(valpha * Math.abs(vCMO) * close.get(i).floatValue()) + (1 - valpha * Math.abs(vCMO)) * nz(var.get(var.size() - 1).floatValue())));
+        }
+
+        return var;
     }
 
     /**
@@ -260,7 +304,7 @@ public class Talite {
 
     /**
      * MavilimW Indicator (WMA kullanılıyor)
-     * Kıvanç Özbilgiç
+     * Kıvanç ÖZBİLGİÇ
      */
     public static List<BigDecimal> MavilimW(List<BigDecimal> close, int firstMALength, int secondMALength) {
         int tmal = firstMALength + secondMALength;
@@ -415,13 +459,13 @@ public class Talite {
     }
 
     /**
-     * ATR - Average True Range
+     * SUPERTREND
      */
     public static List<BigDecimal> SUPERTREND(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int atr_period, float atr_multiplier) {
         List<BigDecimal> atr = ATR(high, low, close, atr_period, MA_TYPE.RMA);
         List<BigDecimal> hl2 = new LinkedList<>();
 
-        for (int i = 0; i < high.size(); i++) // hlc3 doğru
+        for (int i = 0; i < high.size(); i++)
             hl2.add(high.get(i).add(low.get(i)).divide(BigDecimal.valueOf(2), 8, RoundingMode.HALF_UP));
 
         BigDecimal previous_final_upperband = BigDecimal.ZERO;
@@ -471,6 +515,7 @@ public class Talite {
 
     /**
      * OTT - Optimized Trend Tracker
+     * Anıl ÖZEKŞİ
      */
     private static float nz(float value) {
         return (!Float.isNaN(value)) ? value : 0f;
@@ -480,47 +525,18 @@ public class Talite {
         return (!Float.isNaN(x)) ? x : y;
     }
 
-    public static List<BigDecimal> VAR(List<BigDecimal> close, int length) {
-        float valpha = 2f / (length + 1f);
-
-        List<Float> vud1 = new LinkedList<>();
-        List<Float> vdd1 = new LinkedList<>();
-        List<Float> vUD = new LinkedList<>();
-        List<Float> vDD = new LinkedList<>();
-        List<BigDecimal> var = new LinkedList<>();
-        vud1.add(0f);
-        vdd1.add(0f);
-        vUD.add(0f);
-        vDD.add(0f);
-        var.add(BigDecimal.ZERO);
-
-        for (int i = 1; i < close.size(); i++) {
-            vud1.add((close.get(i).compareTo(close.get(i - 1)) > 0 ? close.get(i).subtract(close.get(i - 1)).floatValue() : 0f));
-            vdd1.add(close.get(i).compareTo(close.get(i - 1)) < 0 ? close.get(i - 1).subtract(close.get(i)).floatValue() : 0f);
-
-            int lastValIndex = vud1.size() - 1;
-            if (i > 7) {
-                float sumvUD = 0f, sumvDD = 0f;
-                for (int j = lastValIndex; j > lastValIndex - 9; j--) {
-                    sumvUD += vud1.get(j);
-                    sumvDD += vdd1.get(j);
-                }
-                vUD.add(sumvUD);
-                vDD.add(sumvDD);
-            } else {
-                vUD.add(0f);
-                vDD.add(0f);
-            }
-            lastValIndex = vud1.size() - 1;
-            float vCMO = nz((vUD.get(lastValIndex) - vDD.get(lastValIndex)) / (vUD.get(lastValIndex) + vDD.get(lastValIndex)));
-            var.add(BigDecimal.valueOf(nz(valpha * Math.abs(vCMO) * close.get(i).floatValue()) + (1 - valpha * Math.abs(vCMO)) * nz(var.get(var.size() - 1).floatValue())));
-        }
-
-        return var;
-    }
-
-    public static HashMap<String, List<BigDecimal>> OTT(List<BigDecimal> close, int length, float percent) {
-        List<BigDecimal> MAvg = VAR(close, length);
+    public static HashMap<String, List<BigDecimal>> OTT(List<BigDecimal> close, int length, float percent, MA_TYPE ma_type) {
+        List<BigDecimal> MAvg;
+        if (ma_type == MA_TYPE.EMA)
+            MAvg = EMA(close, length);
+        else if (ma_type == MA_TYPE.RMA)
+            MAvg = RMA(close, length);
+        else if (ma_type == MA_TYPE.SMA)
+            MAvg = SMA(close, length);
+        else if (ma_type == MA_TYPE.WMA)
+            MAvg = WMA(close, length);
+        else
+            MAvg = VAR(close, length);
         List<Float> longStop = new LinkedList<>();
         List<Float> shortStop = new LinkedList<>();
         List<Float> dir = new LinkedList<>();
@@ -529,32 +545,89 @@ public class Talite {
         shortStop.add(0f);
         dir.add(1f);
 
-        for (int i = 0; i < close.size(); i++){
+        for (int i = 0; i < close.size(); i++) {
             float fark = MAvg.get(i).floatValue() * percent * 0.01f;
 
             longStop.add(MAvg.get(i).floatValue() - fark);
-            float longStopPrev = nz(longStop.get(longStop.size()-2), longStop.get(longStop.size()-1));
-            longStop.set(longStop.size()-1, MAvg.get(i).floatValue() > longStopPrev ? Math.max(longStop.get(longStop.size()-1), longStopPrev) : longStop.get(longStop.size()-1));
+            float longStopPrev = nz(longStop.get(longStop.size() - 2), longStop.get(longStop.size() - 1));
+            longStop.set(longStop.size() - 1, MAvg.get(i).floatValue() > longStopPrev ? Math.max(longStop.get(longStop.size() - 1), longStopPrev) : longStop.get(longStop.size() - 1));
 
             shortStop.add(MAvg.get(i).floatValue() + fark);
-            float shortStopPrev = nz(shortStop.get(shortStop.size()-2), shortStop.get(shortStop.size()-1));
-            shortStop.set(shortStop.size()-1, MAvg.get(i).floatValue() < shortStopPrev ? Math.min(shortStop.get(shortStop.size()-1), shortStopPrev) : shortStop.get(shortStop.size()-1));
+            float shortStopPrev = nz(shortStop.get(shortStop.size() - 2), shortStop.get(shortStop.size() - 1));
+            shortStop.set(shortStop.size() - 1, MAvg.get(i).floatValue() < shortStopPrev ? Math.min(shortStop.get(shortStop.size() - 1), shortStopPrev) : shortStop.get(shortStop.size() - 1));
 
             dir.add(1f);
-            dir.set(dir.size()-1 ,nz(dir.get(dir.size()-2), dir.get(dir.size()-1)));
-            dir.set(dir.size()-1, (dir.get(dir.size()-1) == -1f && MAvg.get(i).floatValue() > shortStopPrev) ? 1f : (dir.get(dir.size()-1) == 1f && MAvg.get(i).floatValue() < longStopPrev) ? -1f : dir.get(dir.size()-1));
-            float MT = dir.get(dir.size()-1) == 1f ? longStop.get(longStop.size()-1) : shortStop.get(shortStop.size()-1);
+            dir.set(dir.size() - 1, nz(dir.get(dir.size() - 2), dir.get(dir.size() - 1)));
+            dir.set(dir.size() - 1, (dir.get(dir.size() - 1) == -1f && MAvg.get(i).floatValue() > shortStopPrev) ? 1f : (dir.get(dir.size() - 1) == 1f && MAvg.get(i).floatValue() < longStopPrev) ? -1f : dir.get(dir.size() - 1));
+            float MT = dir.get(dir.size() - 1) == 1f ? longStop.get(longStop.size() - 1) : shortStop.get(shortStop.size() - 1);
+
             ott.add((MAvg.get(i).floatValue() > MT) ? BigDecimal.valueOf(MT * (200f + percent) / 200f) : BigDecimal.valueOf(MT * (200f - percent) / 200f));
         }
         ott.add(0, BigDecimal.ZERO);
         ott.add(0, BigDecimal.ZERO);
-        ott.remove(ott.size()-1);
-        ott.remove(ott.size()-1);
+        ott.remove(ott.size() - 1);
+        ott.remove(ott.size() - 1);
 
         HashMap<String, List<BigDecimal>> hashMap = new HashMap<>();
-        hashMap.put("VAR", MAvg);
+        hashMap.put("MA", MAvg);
         hashMap.put("OTT", ott);
 
+        return hashMap;
+    }
+
+    /**
+     * PMax Indicator
+     * Kıvanç ÖZBİLGİÇ
+     */
+    public static HashMap<String, List<BigDecimal>> PMAX(List<BigDecimal> high, List<BigDecimal> low, List<BigDecimal> close, int atr_length, float atr_multiplier, int ma_length, MA_TYPE ma_type) {
+        List<BigDecimal> atr = ATR(high, low, close, atr_length, MA_TYPE.RMA);
+        List<BigDecimal> hl2 = new LinkedList<>();
+        for (int i = 0; i < high.size(); i++)
+            hl2.add(high.get(i).add(low.get(i)).divide(BigDecimal.valueOf(2), 8, RoundingMode.HALF_UP));
+
+        List<BigDecimal> MAvg;
+        if (ma_type == MA_TYPE.EMA)
+            MAvg = EMA(hl2, ma_length);
+        else if (ma_type == MA_TYPE.RMA)
+            MAvg = RMA(hl2, ma_length);
+        else if (ma_type == MA_TYPE.SMA)
+            MAvg = SMA(hl2, ma_length);
+        else if (ma_type == MA_TYPE.WMA)
+            MAvg = WMA(hl2, ma_length);
+        else
+            MAvg = VAR(hl2, ma_length);
+
+        for (int i = 0; i < atr_length-1; i++)
+            atr.set(i, BigDecimal.ZERO);
+
+        List<Float> longStop = new LinkedList<>();
+        List<Float> shortStop = new LinkedList<>();
+        List<Float> dir = new LinkedList<>();
+        List<BigDecimal> pmax = new LinkedList<>();
+        longStop.add(0f);
+        shortStop.add(0f);
+        dir.add(1f);
+        for (int i = 0; i < close.size(); i++) {
+            longStop.add(MAvg.get(i).floatValue() - atr_multiplier * atr.get(i).floatValue());
+            float longStopPrev = nz(longStop.get(longStop.size() - 2), longStop.get(longStop.size() - 1));
+            longStop.set(longStop.size() - 1, MAvg.get(i).floatValue() > longStopPrev ? Math.max(longStop.get(longStop.size() - 1), longStopPrev) : longStop.get(longStop.size() - 1));
+
+            shortStop.add(MAvg.get(i).floatValue() + atr_multiplier * atr.get(i).floatValue());
+            float shortStopPrev = nz(shortStop.get(shortStop.size() - 2), shortStop.get(shortStop.size() - 1));
+            shortStop.set(shortStop.size() - 1, MAvg.get(i).floatValue() < shortStopPrev ? Math.min(shortStop.get(shortStop.size() - 1), shortStopPrev) : shortStop.get(shortStop.size() - 1));
+
+            dir.add(1f);
+            dir.set(dir.size()-1, nz(dir.get(dir.size()-2), dir.get(dir.size()-1)));
+            dir.set(dir.size()-1, dir.get(dir.size()-1) == -1f && MAvg.get(i).floatValue() > shortStopPrev ? 1f : dir.get(dir.size()-1) == 1f && MAvg.get(i).floatValue() < longStopPrev ? -1f : dir.get(dir.size()-1));
+
+            if (i > atr_length-2)
+                pmax.add(dir.get(dir.size()-1) == 1f ? BigDecimal.valueOf(longStop.get(longStop.size()-1)) : BigDecimal.valueOf(shortStop.get(shortStop.size()-1)));
+            else pmax.add(BigDecimal.ZERO);
+        }
+
+        HashMap<String, List<BigDecimal>> hashMap = new HashMap<>();
+        hashMap.put("MA", MAvg);
+        hashMap.put("PMAX", pmax);
         return hashMap;
     }
 }
