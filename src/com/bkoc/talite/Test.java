@@ -6,17 +6,21 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
 
-//import com.bkoc.exchangeapi.*;
-//import com.bkoc.exchangeapi.exchanges.Binance;
-//import com.bkoc.exchangeapi.exchanges.Bitfinex;
-//import com.bkoc.exchangeapi.exchanges.FTX;
+import com.bkoc.exchangeapi.*;
+import com.bkoc.exchangeapi.exchanges.Binance;
+import com.bkoc.exchangeapi.exchanges.Bitfinex;
+import com.bkoc.exchangeapi.exchanges.FTX;
+import com.bkoc.exchangeapi.exchanges.BitBay;
 
 public class Test {
     public static void main(String[] args) throws Exception {
-//        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_1WEEK, 300);
-//        List<BigDecimal> close = General.getValuesOfCandlestics(candle, General.OHLCV.CLOSE);
-//        List<BigDecimal> high = General.getValuesOfCandlestics(candle, General.OHLCV.HIGH);
-//        List<BigDecimal> low = General.getValuesOfCandlestics(candle, General.OHLCV.LOW);
+        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_5MIN);
+        List<BigDecimal> close = General.getValuesOfCandlestics(candle, General.OHLCV.CLOSE);
+        List<BigDecimal> high = General.getValuesOfCandlestics(candle, General.OHLCV.HIGH);
+        List<BigDecimal> low = General.getValuesOfCandlestics(candle, General.OHLCV.LOW);
+        close = close.subList(close.size() - 100, close.size());
+        high = high.subList(high.size() - 100, high.size());
+        low = low.subList(low.size() - 100, low.size());
 
 //        System.out.println("SMA:");
 //        List<BigDecimal> sma = Talite.SMAIndicator(close, 14);
@@ -39,7 +43,7 @@ public class Test {
 //            System.out.println(x);
 
 //        System.out.println("RSI:");
-//        List<BigDecimal> rsi = Talite.RSIIndicator(close, 14);
+//        List<BigDecimal> rsi = Talite.RSI(close, 14);
 //        for (BigDecimal x : rsi)
 //            System.out.println(x);
 
@@ -51,22 +55,23 @@ public class Test {
 //            System.out.println("k: " + stoch_k.get(i) + " -> d: " + stoch_d.get(i));
 
 //        System.out.println("STOCH_RSI:");
-//        HashMap<String, List<BigDecimal>> stoch = Talite.STOCHRSIIndicator(close,3, 3, 14, 14);
+//        HashMap<String, List<BigDecimal>> stoch = Talite.STOCHRSI(close,3, 3, 14, 14);
 //        List<BigDecimal> stoch_k = stoch.get("k");
 //        List<BigDecimal> stoch_d = stoch.get("d");
 //        for (int i = 0; i < stoch_d.size(); i++)
 //            System.out.println("k: " + stoch_k.get(i) + " -> d: " + stoch_d.get(i));
 
 //        System.out.println("BOLLINGER BAND:");
-//        HashMap<String, List<BigDecimal>> stoch = Talite.BBANDSIndicator(close,20, 2);
+//        HashMap<String, List<BigDecimal>> stoch = Talite.BBANDS(close,20, 2);
 //        List<BigDecimal> upper = stoch.get("upper");
 //        List<BigDecimal> middle = stoch.get("middle");
 //        List<BigDecimal> lower = stoch.get("lower");
 //        for (int i = 0; i < middle.size(); i++)
 //            System.out.println("Middle: " + middle.get(i) + " -> Upper: " + upper.get(i) + " -> Lower: " + lower.get(i));
+//        System.out.println("Size: " + upper.size());
 
 //        System.out.println("MACD:");
-//        HashMap<String, List<BigDecimal>> macdHash = Talite.MACDIndicator(close,12, 26, 9, Talite.MA_TYPE.SMA, Talite.MA_TYPE.SMA);
+//        HashMap<String, List<BigDecimal>> macdHash = Talite.MACD(close,12, 26, 9, Talite.MA_TYPE.EMA, Talite.MA_TYPE.EMA);
 //        List<BigDecimal> macd = macdHash.get("macd");
 //        List<BigDecimal> signal = macdHash.get("signal");
 //        List<BigDecimal> hist = macdHash.get("hist");
@@ -115,19 +120,23 @@ public class Test {
 //        for (BigDecimal x : supertrend)
 //            System.out.println(x);
 
-//        System.out.println("VAR");
-//        HashMap<String, List<BigDecimal>> hash = Talite.OTT(close, 2, 1.4f);
+//        System.out.println("OTT");
+//        HashMap<String, List<BigDecimal>> hash = Talite.OTT(close, 2, 1.4f, Talite.MA_TYPE.VAR);
 //        List<BigDecimal> VAR = hash.get("MA");
 //        List<BigDecimal> OTT = hash.get("OTT");
 //        for (int i = 0; i < VAR.size(); i++)
 //            System.out.println("VAR: " + VAR.get(i) + " -> OTT: " + OTT.get(i));
 
 //        System.out.println("PMax");
-//        HashMap<String, List<BigDecimal>> hash = Talite.PMAX(high, low, close, 10, 3, 10, Talite.MA_TYPE.VAR);
-//        List<BigDecimal> VAR = hash.get("MA");
-//        List<BigDecimal> PMAX = hash.get("PMAX");
-//        System.out.println("VAR: " + VAR.size() + "\nPMAX: " + PMAX.size());
-//        for (int i = 0; i < VAR.size(); i++)
-//            System.out.println("VAR: " + VAR.get(i) + " -> PMAX: " + PMAX.get(i));
+//        HashMap<String, List<BigDecimal>> hash = Talite.PMAX(high, low, close, 10, 3, 10, Talite.MA_TYPE.EMA);
+//        if (!Objects.isNull(hash)) {
+//            List<BigDecimal> EMA = hash.get("MA");
+//            List<BigDecimal> PMAX = hash.get("PMAX");
+//            System.out.println("EMA: " + EMA.size() + "\nPMAX: " + PMAX.size());
+//            for (int i = 0; i < EMA.size(); i++)
+//                System.out.println("VAR: " + EMA.get(i) + " -> PMAX: " + PMAX.get(i));
+//        }
+//        else
+//            System.out.println("PMAX NULL!");
     }
 }

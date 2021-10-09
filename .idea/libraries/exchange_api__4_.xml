@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="exchange_api (4)">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/exchange_api.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
