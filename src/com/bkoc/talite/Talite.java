@@ -2,10 +2,7 @@ package com.bkoc.talite;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class Talite {
@@ -46,9 +43,14 @@ public class Talite {
         if (timeperiod >= closes.size())
             return null;
 
-        BigDecimal alpha = BigDecimal.valueOf(2).divide(BigDecimal.valueOf(timeperiod + 1), 10, RoundingMode.HALF_UP).stripTrailingZeros();
         List<BigDecimal> ema = new LinkedList<>();
-        emaCalculate(closes, ema, closes.size() - 1, alpha);
+        BigDecimal alpha = BigDecimal.valueOf(2).divide(BigDecimal.valueOf(timeperiod + 1), 10, RoundingMode.HALF_UP).stripTrailingZeros();
+        ema.add(BigDecimal.ZERO);
+
+        for (int i = 0; i < closes.size(); i++)
+            ema.add(alpha.multiply(closes.get(i)).add(BigDecimal.valueOf(nz(ema.get(i).floatValue())).multiply(BigDecimal.ONE.subtract(alpha))));
+        ema.remove(0);
+//        emaCalculate(closes, ema, closes.size() - 1, alpha);
         return ema;
     }
 
@@ -328,11 +330,16 @@ public class Talite {
         int Smal = Ftmal + Fmal;
 
         List<BigDecimal> M1 = WMA(close, firstMALength);
-        M1 = WMA(M1, secondMALength); if(Objects.isNull(M1)) return null;
-        M1 = WMA(M1, tmal); if(Objects.isNull(M1)) return null;
-        M1 = WMA(M1, Fmal); if(Objects.isNull(M1)) return null;
-        M1 = WMA(M1, Ftmal); if(Objects.isNull(M1)) return null;
-        M1 = WMA(M1, Smal); if(Objects.isNull(M1)) return null;
+        M1 = WMA(M1, secondMALength);
+        if (Objects.isNull(M1)) return null;
+        M1 = WMA(M1, tmal);
+        if (Objects.isNull(M1)) return null;
+        M1 = WMA(M1, Fmal);
+        if (Objects.isNull(M1)) return null;
+        M1 = WMA(M1, Ftmal);
+        if (Objects.isNull(M1)) return null;
+        M1 = WMA(M1, Smal);
+        if (Objects.isNull(M1)) return null;
 
         return M1;
     }
@@ -464,8 +471,7 @@ public class Talite {
             return null;
 
         List<BigDecimal> tr = new LinkedList<>();
-        tr.add(BigDecimal.ZERO);
-
+//        tr.add(BigDecimal.ZERO);
         // TR Calculate
         for (int i = 1; i < high.size(); i++) {
             BigDecimal a = high.get(i).subtract(low.get(i));
@@ -479,6 +485,8 @@ public class Talite {
             return SMA(tr, period);
         else if (ma_type == MA_TYPE.EMA)
             return EMA(tr, period);
+        else if (ma_type == MA_TYPE.WMA)
+            return WMA(tr, period);
         else return RMA(tr, period);
     }
 

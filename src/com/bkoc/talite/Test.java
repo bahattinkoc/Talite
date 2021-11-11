@@ -7,38 +7,48 @@ import java.util.*;
 import java.util.List;
 
 import com.bkoc.exchangeapi.*;
-import com.bkoc.exchangeapi.exchanges.Binance;
-import com.bkoc.exchangeapi.exchanges.Bitfinex;
-import com.bkoc.exchangeapi.exchanges.FTX;
-import com.bkoc.exchangeapi.exchanges.BitBay;
+import com.bkoc.exchangeapi.exchanges.*;
 
 public class Test {
     public static void main(String[] args) throws Exception {
-        List<Candlestick> candle = Binance.klines("BTCUSDT", Interval.INT_5MIN);
+        List<Candlestick> candle = Exmo.klines("BTC_USDT", Interval.INT_1WEEK);
         List<BigDecimal> close = General.getValuesOfCandlestics(candle, General.OHLCV.CLOSE);
         List<BigDecimal> high = General.getValuesOfCandlestics(candle, General.OHLCV.HIGH);
         List<BigDecimal> low = General.getValuesOfCandlestics(candle, General.OHLCV.LOW);
-        close = close.subList(close.size() - 100, close.size());
-        high = high.subList(high.size() - 100, high.size());
-        low = low.subList(low.size() - 100, low.size());
+//        close = close.subList(close.size() - 100, close.size());
+//        high = high.subList(high.size() - 100, high.size());
+//        low = low.subList(low.size() - 100, low.size());
+
+//        System.out.println("ATR:");
+//        List<BigDecimal> atr = Talite.ATR(high, low, close, 14, Talite.MA_TYPE.EMA);
+//        for (BigDecimal x : atr)
+//            System.out.println(x);
+//        System.out.println("Size: " + atr.size());
+
+//        System.out.println("VAR:");
+//        List<BigDecimal> var = Talite.VAR(close, 2);
+//        for (BigDecimal x : var)
+//            System.out.println(x);
+//        System.out.println("Size: " + var.size());
 
 //        System.out.println("SMA:");
-//        List<BigDecimal> sma = Talite.SMAIndicator(close, 14);
+//        List<BigDecimal> sma = Talite.SMA(close, 14);
 //        for (BigDecimal x : sma)
 //            System.out.println(x);
 
 //        System.out.println("EMA:");
-//        List<BigDecimal> ema = Talite.EMAIndicator(close, 9);
+//        List<BigDecimal> ema = Talite.EMA(close, 14);
 //        for (BigDecimal x : ema)
 //            System.out.println(x);
+//        System.out.println("Size: " + ema.size());
 
 //        System.out.println("RMA:");
-//        List<BigDecimal> rma = Talite.RMAIndicator(close, 10);
+//        List<BigDecimal> rma = Talite.RMA(close, 14);
 //        for (BigDecimal x : rma)
 //            System.out.println(x);
 
 //        System.out.println("WMA:");
-//        List<BigDecimal> wma = Talite.WMAIndicator(close, 9);
+//        List<BigDecimal> wma = Talite.WMA(close, 9);
 //        for (BigDecimal x : wma)
 //            System.out.println(x);
 
